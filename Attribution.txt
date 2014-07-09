@@ -1,0 +1,6 @@
+
+Ball bounce sound effects created by me using the free sound creation app SFXR at http://www.drpetter.se/project_sfxr.html
+
+This game uses these sounds from freesound:
+LifeLost.wav by noirenex | License: Creative Commons 0 ( http://www.freesound.org/people/noirenex/ )
+game over by fins | License: Creative Commons 0 ( http://www.freesound.org/people/fins/ )
