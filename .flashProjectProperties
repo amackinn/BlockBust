@@ -1,0 +1,29 @@
+<projectDescription>
+  <id>1319382826218</id>
+  <name>BlockBust</name>
+  <asVersion>0</asVersion>
+  <boundTemplate>file:///C|/Documents and Settings/Root/Local Settings/Application Data/Adobe/Flash CS5/en_US/Configuration/ActionScript 3.0/Templates/boundClass_as3.as</boundTemplate>
+  <classTemplate>file:///C|/Documents and Settings/Root/Local Settings/Application Data/Adobe/Flash CS5/en_US/Configuration/ActionScript 3.0/Templates/standardClass_as3.as</classTemplate>
+  <classPath>.</classPath>
+  <defaultApp>file:///E|/Projects/Technical/Programming/FlashProgramming/MyStuff/BBB/BlockBust.fla</defaultApp>
+  <rootURI>file:///E|/Projects/Technical/Programming/FlashProgramming/MyStuff/BBB/</rootURI>
+  <flexSDK/>
+  <sources editable="false"/>
+  <libraries editable="false"/>
+  <externalLibraries editable="false"/>
+  <compileList editable="false">
+    <uri label="BlockBust.fla">file:///E|/Projects/Technical/Programming/FlashProgramming/MyStuff/BBB/BlockBust.fla</uri>
+  </compileList>
+  <recentFiles editable="false">
+    <uri label="Main_BBB.as">file:///E|/Projects/Technical/Programming/FlashProgramming/MyStuff/BBB/Main_BBB.as</uri>
+    <uri label="Player.as">file:///E|/Projects/Technical/Programming/FlashProgramming/MyStuff/BBB/Player.as</uri>
+    <uri label="BlockBust.fla">file:///E|/Projects/Technical/Programming/FlashProgramming/MyStuff/BBB/BlockBust.fla</uri>
+    <uri label="Ball.as">file:///E|/Projects/Technical/Programming/FlashProgramming/MyStuff/BBB/Ball.as</uri>
+    <uri label="GoldBrick.as">file:///E|/Projects/Technical/Programming/FlashProgramming/MyStuff/BBB/GoldBrick.as</uri>
+    <uri label="SilverBrick.as">file:///E|/Projects/Technical/Programming/FlashProgramming/MyStuff/BBB/SilverBrick.as</uri>
+    <uri label="PowerUp.as">file:///E|/Projects/Technical/Programming/FlashProgramming/MyStuff/BBB/PowerUp.as</uri>
+    <uri label="Collision.as">file:///E|/Projects/Technical/Programming/FlashProgramming/MyStuff/BBB/Collision.as</uri>
+    <uri label="Brick.as">file:///E|/Projects/Technical/Programming/FlashProgramming/MyStuff/BBB/Brick.as</uri>
+  </recentFiles>
+  <locations editable="false"/>
+</projectDescription>
