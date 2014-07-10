@@ -12,7 +12,7 @@
 		{
 			// Initialize variables
 			_hits = 999;
-			_score = 50;
+			_score = 500;
 			addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 		}
 		private function onAddedToStage(event:Event):void

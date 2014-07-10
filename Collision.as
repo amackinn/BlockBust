@@ -90,7 +90,7 @@
 			return false;
 		}
 		
-		static public function ballAndBrick(ball:MovieClip,objectB:MovieClip):Boolean
+		static public function ballAndBrick(ball:MovieClip,objectB:MovieClip,isBlocking:Boolean):Boolean
 		{
 			var ball_Halfwidth=ball.width/2;
 			var ball_Halfheight=ball.height/2;
@@ -104,6 +104,11 @@
 				var oy=objectB_Halfheight+ball_Halfheight-Math.abs(dy);
 				if (oy > 0)
 				{
+					if (!isBlocking)
+					{
+						// Ball not blocked by bricks
+						return true;
+					}
 					//Yes, a collision is occuring! 
 					//Now you need to find out on which side 
 					//of the platform it's occuring on.
@@ -203,7 +208,7 @@
 							//property to true
 							if (player.powerUp == "catch")
 							{
-								ball.objectIsOnTop = true;
+								ball.isOnPaddle = true;
 								ball.vx = 0;
 								ball.vy = 0;
 							}

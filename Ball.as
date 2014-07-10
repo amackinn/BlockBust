@@ -14,9 +14,12 @@
 		private const PLAYAREA_RIGHT_LIMIT:uint = 450;
 		private const PLAYAREA_TOP_LIMIT:uint = 16;
 		private const PLAYAREA_BOT_LIMIT:uint = 415;
+		private const MAX_VELOCITY:int = 20;
+		private const MIN_VELOCITY:int = 4;
 		// Powerups
 		private const NORMAL:uint = 1;
 		private const MEGABALL:uint = 2;
+		private const EXPLODABALL:uint = 3;
 		
 		//Variables:
 		private var _dx:Number;
@@ -175,7 +178,7 @@
 		}
 		public function set vel(velValue:Number):void
 		{
-			_vel = velValue;
+			_vel = Math.min(Math.max(velValue, MIN_VELOCITY), MAX_VELOCITY);
 		}
 		public function get vel():Number
 		{
@@ -230,15 +233,33 @@
 		}
 		public function set powerup(powerupString:String):void
 		{
-			switch (_powerup) 
+			switch (powerupString) 
 			{
 				case "Megaball":
 					_powerup = MEGABALL;
+					break;
+				case "Explodaball":
+					_powerup = EXPLODABALL;
+					break;
 				case "Normal":
 				default:
 					_powerup = NORMAL;
+					break;
 			}
 			gotoAndStop(_powerup);
 		}
+		
+		public function launchAtAngle(launchAngle:Number):void
+		{
+			var angleRadians:Number = launchAngle / 180 * Math.PI;
+			vx = _vel * Math.cos(angleRadians);
+			vy =  - _vel * Math.sin(angleRadians);
+		}
+	
+		public function get angle():Number
+		{
+			return (Math.atan(vy/vx) * 180 / Math.PI);
+		}
+	
 	}
 }

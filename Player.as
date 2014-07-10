@@ -5,27 +5,38 @@
 	import flash.ui.Keyboard;
 	//import flash.ui.Mouse;
 	import flash.events.Event;
+	import flash.media.Sound;
 
 	public class Player extends MovieClip
 	{
 		//Constants
-		private const SPEED_LIMIT:int = 20; 
-		private const ACCELERATION:Number = 3; 
+		private const SPEED_LIMIT:int = 20;
+		private const ACCELERATION:Number = 3;
 		private const PLAYAREA_LEFT_LIMIT:uint = 14;
 		private const PLAYAREA_RIGHT_LIMIT:uint = 450;
-		
+		private const EXPAND_RATIO:Number = 1.50;
+		private const SHRINK_RATIO:Number = 0.66;
+		private const MAX_EXPAND:Number = 2.0;
+		private const MIN_SHRINK:Number = 0.5;
+
 		//Variables:
 		private var _vx:Number;
 		private var _vy:Number;
 		private var _accelerationX:Number;
 		private var _collisionArea:MovieClip;
 		private var _launchAngle:int;
-		
 		private var _powerUp:String;
+
+		private var _shrinkSFX:PlayerShrinkSFX;
+		private var _expandSFX:PlayerExpandSFX;
+		private var _sfxToPlay:Sound;
 
 		public function Player()
 		{
 			addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
+			_shrinkSFX = new PlayerShrinkSFX;
+			_expandSFX = new PlayerExpandSFX;
+			_sfxToPlay = null;
 		}
 		private function onAddedToStage(event:Event):void
 		{
@@ -60,7 +71,7 @@
 					_accelerationX = 0;
 					_vx = 0;
 				}
-				_accelerationX = -ACCELERATION;
+				_accelerationX =  -  ACCELERATION;
 			}
 			if (event.keyCode == Keyboard.RIGHT)
 			{
@@ -83,11 +94,13 @@
 				}
 			}
 			if (event.keyCode == Keyboard.RIGHT)
+			{
 				if (_vx > 0)
 				{
 					_accelerationX = 0;
 					_vx = 0;
 				}
+			}
 			if (event.keyCode == Keyboard.SPACE)
 			{
 				trace("Player Position: X=" + x + " Y=" + y);
@@ -95,42 +108,44 @@
 		}
 		private function onEnterFrame(event:Event):void
 		{
-			//Initialize local variables
-			var playerHalfWidth:uint = _collisionArea.width / 2;
-			var playerHalfHeight:uint = _collisionArea.height / 2;
-
 			//Apply Acceleration
-			_vx += _accelerationX;
+			_vx +=  _accelerationX;
 			if (_vx > SPEED_LIMIT)
 			{
 				_vx = SPEED_LIMIT;
 			}
-			if (_vx < -SPEED_LIMIT)
+			if (_vx <  -  SPEED_LIMIT)
 			{
-				_vx = -SPEED_LIMIT;
+				_vx =  -  SPEED_LIMIT;
 			}
-			
+
 			if (Math.abs(_vx) < 0.1)
 			{
 				_vx = 0;
 			}
-			
+
 			//Move the player
-			x += _vx;
-			
-			//Stage boundaries
-			if (x + playerHalfWidth > PLAYAREA_RIGHT_LIMIT)
+			x +=  _vx;
+
+			if (_accelerationX != 0)
 			{
-				_vx = 0;
-				x=PLAYAREA_RIGHT_LIMIT - playerHalfWidth;
+				dispatchEvent(new Event("playerMoved", true));
 			}
-			else if (x - playerHalfWidth < PLAYAREA_LEFT_LIMIT)
-			{
-				_vx = 0;
-				x = PLAYAREA_LEFT_LIMIT + playerHalfWidth;
-			}
+
+			////Stage boundaries
+			//var playerHalfWidth:uint = this.width / 2;
+			//if (x + playerHalfWidth > PLAYAREA_RIGHT_LIMIT)
+			//{
+			//_vx = 0;
+			//x=PLAYAREA_RIGHT_LIMIT - playerHalfWidth;
+			//}
+			//else if (x - playerHalfWidth < PLAYAREA_LEFT_LIMIT)
+			//{
+			//_vx = 0;
+			//x = PLAYAREA_LEFT_LIMIT + playerHalfWidth;
+			//}
 		}
-		
+
 		//Getters and Setters
 		public function set vx(vxValue:Number):void
 		{
@@ -156,9 +171,34 @@
 		{
 			return _powerUp;
 		}
+		public function get sfxToPlay():Sound
+		{
+			return _sfxToPlay;
+		}
 		public function set powerUp(powerUpType:String):void
 		{
 			_powerUp = powerUpType;
+
+			switch (_powerUp)
+			{
+				case "catch" :
+					break;
+				case "laser" :
+					break;
+				case "megaLaser" :
+					break;
+				case "expand" :
+					this.scaleX = Math.min(MAX_EXPAND, this.scaleX * EXPAND_RATIO);
+					_sfxToPlay = _expandSFX;
+					dispatchEvent(new Event("playSFX", true));
+					break;
+				case "shrink" :
+					this.scaleX = Math.max(MIN_SHRINK, this.scaleX * SHRINK_RATIO);
+					_sfxToPlay = _shrinkSFX;
+					dispatchEvent(new Event("playSFX", true));
+					break;
+			}
+
 		}
 	}
 }

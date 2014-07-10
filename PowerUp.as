@@ -43,7 +43,7 @@
 			//Add stage event listeners
 			addEventListener(Event.ENTER_FRAME, onEnterFrame);
 			addEventListener(Event.REMOVED_FROM_STAGE, onRemovedFromStage);
-			//Tell the game the a new bullet has been created
+			//Tell the game the a new powerup has been created
 			dispatchEvent(new Event("powerUpCreated", true));
 			
 			//Remove onAddedToStage listener
