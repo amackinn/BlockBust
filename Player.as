@@ -181,18 +181,16 @@
 
 			switch (_powerUp)
 			{
-				case "catch" :
+				case PUTypes.CATCH :
 					break;
-				case "laser" :
+				case PUTypes.LASER :
 					break;
-				case "megaLaser" :
-					break;
-				case "expand" :
+				case PUTypes.EXPAND :
 					this.scaleX = Math.min(MAX_EXPAND, this.scaleX * EXPAND_RATIO);
 					_sfxToPlay = _expandSFX;
 					dispatchEvent(new Event("playSFX", true));
 					break;
-				case "shrink" :
+				case PUTypes.SHRINK :
 					this.scaleX = Math.max(MIN_SHRINK, this.scaleX * SHRINK_RATIO);
 					_sfxToPlay = _shrinkSFX;
 					dispatchEvent(new Event("playSFX", true));

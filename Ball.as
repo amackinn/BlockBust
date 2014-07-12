@@ -19,7 +19,6 @@
 		// Powerups
 		private const NORMAL:uint = 1;
 		private const MEGABALL:uint = 2;
-		private const EXPLODABALL:uint = 3;
 		
 		//Variables:
 		private var _dx:Number;
@@ -125,10 +124,10 @@
 			}
 			else if (y + ballHalfHeight > PLAYAREA_BOT_LIMIT)
 			{
-//				_vy *= BOUNCE;
-//				y = PLAYAREA_BOT_LIMIT - ballHalfHeight;
+				_vy *= BOUNCE;
+				y = PLAYAREA_BOT_LIMIT - ballHalfHeight;
 				
-				_isLost = true;
+//				_isLost = true;
 			}
 		}
 		private function onKeyDown(event:KeyboardEvent):void
@@ -225,23 +224,20 @@
 			switch (_powerup) 
 			{
 				case MEGABALL:
-					return "Megaball";
+					return PUTypes.MEGABALL;
 				case NORMAL:
 				default:
-					return "Normal";
+					return "";
 			}
 		}
 		public function set powerup(powerupString:String):void
 		{
 			switch (powerupString) 
 			{
-				case "Megaball":
+				case PUTypes.MEGABALL:
 					_powerup = MEGABALL;
 					break;
-				case "Explodaball":
-					_powerup = EXPLODABALL;
-					break;
-				case "Normal":
+				case "":
 				default:
 					_powerup = NORMAL;
 					break;

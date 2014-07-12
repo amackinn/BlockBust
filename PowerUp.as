@@ -9,7 +9,6 @@
 
 	public class PowerUp extends MovieClip
 	{
-		
 		//Variables:
 		private var _vy:Number;
 		private var _powerUpType:String;

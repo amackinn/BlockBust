@@ -8,6 +8,9 @@
 	import flash.media.SoundChannel;
 	import flash.media.SoundTransform;
 	import flash.media.SoundMixer;
+	import flash.events.KeyboardEvent;
+	import fl.controls.Slider;
+	import fl.events.SliderEvent;
 
 	public class Main_BBB extends MovieClip
 	{
@@ -23,11 +26,17 @@
 		private const POWERUP_CHANCE:Number = 0.1;
 		private const LAUNCH_DELAY:uint = 1000;
 		private const START_DELAY = 200;
-		private const INITIAL_VOLUME = 0.5;
+		private const INITIAL_VOLUME = 5;
 
-		private const POWERUP_LIST:Array = ["catch","slow","triple","expand","shrink","Megaball","laser","megaLaser","extraLife","warp","Explodaball"];
-		private const POWERUP_COLOR:Array = [0x00FF00,0xFF9900,0x00FFFF,0x0000FF,0xCCCCCC,0xFF00FF,0xFF0000,0x600000,0x333333,0xFF66FF,0xFFFF00];
-		private const POWERUP_PDIST:Array = [10,10,10,10,10,3,5,2,2,2,2];
+		private const POWERUP_LIST:Array = [PUTypes.CATCH, PUTypes.SLOW, PUTypes.TRIPLE,
+											PUTypes.EXPAND, PUTypes.SHRINK, PUTypes.MEGABALL,
+											PUTypes.LASER, PUTypes.EXTRALIFE, PUTypes.WARP];
+		private const POWERUP_COLOR:Array = [PUTypes.COLOR_CATCH, PUTypes.COLOR_SLOW, PUTypes.COLOR_TRIPLE,
+											PUTypes.COLOR_EXPAND, PUTypes.COLOR_SHRINK, PUTypes.COLOR_MEGABALL,
+											PUTypes.COLOR_LASER, PUTypes.COLOR_EXTRALIFE, PUTypes.COLOR_WARP];
+		private const POWERUP_PDIST:Array = [PUTypes.PROB_CATCH, PUTypes.PROB_SLOW, PUTypes.PROB_TRIPLE,
+											PUTypes.PROB_EXPAND, PUTypes.PROB_SHRINK, PUTypes.PROB_MEGABALL,
+											PUTypes.PROB_LASER, PUTypes.PROB_EXTRALIFE, PUTypes.PROB_WARP];
 
 		private var _lives:int;
 		private var _balls:Array;
@@ -39,7 +48,7 @@
 		private var _powerUpsTotProb;
 
 		// Sound Resources
-//		private var _theme:StartTheme;
+		private var _theme:StartTheme;
 		private var _bounceHi:BounceHi;
 		private var _bounceMid:BounceMid;
 		private var _bounceLo:BounceLo;
@@ -58,6 +67,8 @@
 			stage.addEventListener("ballCreated",onBallCreated);
 			stage.addEventListener("playerMoved",onPlayerMoved);
 			stage.addEventListener("playSFX",onPlaySFX);
+			stage.addEventListener(KeyboardEvent.KEY_DOWN,onKeyDown);
+			volumeSlider.addEventListener(SliderEvent.CHANGE, onVolumeChanged);
 		}
 		
 		private function initGame():void
@@ -77,7 +88,7 @@
 			_powerUps = [];
 
 			//Initialize sound effects
-//			_theme = new StartTheme;
+			_theme = new StartTheme;
 			_bounceHi = new BounceHi;
 			_bounceMid = new BounceMid;
 			_bounceLo = new BounceLo;
@@ -85,7 +96,12 @@
 			_gameOver = new GameOver;
 			_teleportSFX = new TeleportSFX;
 			_soundChannel = new SoundChannel;
-			_soundMasterVolume = INITIAL_VOLUME;
+
+			
+			volumeOff.visible = false;
+			volumeOn.visible = true;
+			volumeSlider.value = INITIAL_VOLUME;
+			_soundMasterVolume = volumeSlider.value/10.0;
 			SoundMixer.soundTransform = new SoundTransform(_soundMasterVolume); // Sets the volume to 50%
 
 			//Initialize objects
@@ -103,9 +119,59 @@
 			_startTimer.start();
 
 			// Play start theme
-//			_soundChannel = _theme.play();
+			_soundChannel = _theme.play();
+		}
+
+		private function onVolumeChanged(event:SliderEvent):void
+		{
+			stage.focus = null;
+			applyVolume();
 		}
 		
+		private function applyVolume():void{
+			_soundMasterVolume = volumeSlider.value/10.0;
+			if (volumeSlider.value == 0)
+			{
+				volumeOff.visible = true;
+				volumeOn.visible = false;
+			}
+			else
+			{
+				volumeOff.visible = false;
+				volumeOn.visible = true;
+			}
+			SoundMixer.soundTransform = new SoundTransform(_soundMasterVolume); // Sets the volume to 50%
+		}
+
+
+		private function onKeyDown(event:KeyboardEvent):void
+		{
+			if (event.keyCode == 48) // '0': mute volume
+			{
+				volumeOff.visible = !volumeOff.visible;
+				volumeOn.visible = !volumeOn.visible;
+				if (volumeOff.visible)
+				{
+					SoundMixer.soundTransform = new SoundTransform(0);
+				}
+				else
+				{
+					SoundMixer.soundTransform = new SoundTransform(_soundMasterVolume);
+				}
+			}
+			else if (event.keyCode == 189) // '-': reduce volume
+			{
+				volumeSlider.value = Math.max(0,volumeSlider.value-1);
+				applyVolume();
+			}
+			else if (event.keyCode == 187) // '+': increase volume
+			{
+				volumeSlider.value = Math.min(10,volumeSlider.value+1);
+				applyVolume();
+			}
+		}
+
+
 		private function onStartRound(event:Event):void
 		{
 			_startTimer.reset();
@@ -214,7 +280,7 @@
 				{
 					// Play sound
 					_soundChannel = _bounceMid.play();
-					if (_player.powerUp == "catch")
+					if (_player.powerUp == PUTypes.CATCH)
 					{
 						_balls[j].isOnPaddle = true;
 					}
@@ -250,31 +316,29 @@
 				{
 					switch (_powerUps[i].powerUpType)
 					{
-						case "catch" :
-						case "laser" :
-						case "megaLaser" :
-						case "expand" :
-						case "shrink" :
+						case PUTypes.CATCH :
+						case PUTypes.LASER :
+						case PUTypes.EXPAND :
+						case PUTypes.SHRINK :
 							_player.powerUp = _powerUps[i].powerUpType;
 							break;
-						case "extraLife" : 
+						case PUTypes.EXTRALIFE : 
 							this["extraLife" + _lives].visible = true;
 							_lives = Math.min(_lives+1, MAX_LIVES);
 							break;
-						case "slow" :
+						case PUTypes.SLOW :
 							for (var k:int = 0; k < _balls.length; k++)
 							{
 								_balls[k].vel = START_VELOCITY/2;
 							}
 							break;
-						case "Megaball" :
-						case "Explodaball" :
+						case PUTypes.MEGABALL :
 							for (var j:int = 0; j < _balls.length; j++)
 							{
 								_balls[j].powerup = _powerUps[i].powerUpType;
 							}
 							break;
-						case "triple" :
+						case PUTypes.TRIPLE :
 							var numBalls = _balls.length;
 							for (var j:int = 0; j < numBalls; j++)
 							{
@@ -288,15 +352,15 @@
 								
 							}
 							break;
-						case "warp":
+						case PUTypes.WARP:
 							_soundChannel = _teleportSFX.play();
 							winLevel();
 							break;
 						default :
-							_player.powerUp = "Normal";
+							_player.powerUp = "";
 							for (var j:int = 0; j < _balls.length; j++)
 							{
-								_balls[j].powerup = "Normal";
+								_balls[j].powerup = "";
 							}
 							break;
 					}
@@ -326,13 +390,13 @@
 				if (_balls[j] != null)
 				{
 					//if (Collision.test(_balls[j], brick))
-					if (Collision.ballAndBrick(_balls[j], brick, _balls[j].powerup != "Megaball"))
+					if (Collision.ballAndBrick(_balls[j], brick, _balls[j].powerup != PUTypes.MEGABALL))
 					{
 						for (var k:int = 0; k < _balls.length; k++)
 						{
 							_balls[k].vel += VELOCITY_INCR;
 						}
-						if (_balls[j].powerup == "Megaball")
+						if (_balls[j].powerup == PUTypes.MEGABALL)
 						{
 							brick.hits = 0;
 						}
@@ -358,7 +422,8 @@
 										break;
 									}
 								}
-								this.addChild(new PowerUp(brick.x,brick.y,POWERUP_LIST[pUChosen],POWERUP_COLOR[pUChosen]));
+								this.addChild(new PowerUp(brick.x,brick.y,POWERUP_LIST[pUChosen],
+														  POWERUP_COLOR[pUChosen]));
 							}
 
 							// Update score
@@ -405,6 +470,7 @@
 			removeEventListener("powerUpCreated",onPowerUpCreated);
 			removeEventListener("ballCreated",onBallCreated);
 			removeEventListener(TimerEvent.TIMER,onUpdateTime);
+			removeEventListener(KeyboardEvent.KEY_DOWN,onKeyDown);
 		}
 		
 		private function winLevel():void
