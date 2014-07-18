@@ -2,15 +2,15 @@
 {
 	public class PUTypes
 	{
-		public static const CATCH:String = "catch";
-		public static const SLOW:String  = "slow";
-		public static const TRIPLE:String = "triple";
-		public static const EXPAND:String = "expand";
-		public static const SHRINK:String = "shrink";
-		public static const MEGABALL:String = "megaball";
-		public static const LASER:String = "laser";
-		public static const EXTRALIFE:String = "extralife";
-		public static const WARP:String = "warp";
+		public static const CATCH:String = "Catch";
+		public static const SLOW:String  = "Slow";
+		public static const TRIPLE:String = "Triple";
+		public static const EXPAND:String = "Grow";
+		public static const SHRINK:String = "Shrink";
+		public static const MEGABALL:String = "Megaball";
+		public static const LASER:String = "Laser";
+		public static const EXTRALIFE:String = "Extralife";
+		public static const WARP:String = "Warp";
 		
 		public static const PROB_CATCH:uint = 10;
 		public static const PROB_SLOW:uint  = 12;

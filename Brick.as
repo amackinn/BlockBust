@@ -7,12 +7,14 @@
 	{
 		private var _hits:int;
 		private var _score:int;
+		private var _isBreakable:Boolean;
 		
 		public function Brick()
 		{
 			// Initialize variables
 			_hits = 1;
 			_score = 10;
+			_isBreakable = true;
 			addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 		}
 		private function onAddedToStage(event:Event):void
@@ -28,12 +30,12 @@
 			removeEventListener(Event.REMOVED_FROM_STAGE, onRemovedFromStage);
 		}
 		
-		//Each frame of the wall objects send references of themselves to the
-		//DungeonOne_Manager (the "parent") to be checked for a collision
-		//with the player
+		//Each frame the brick objects send references of themselves to the
+		//Main_BBB (the "parent") to be checked for a collision
+		//with the ball(s)
 		private function onEnterFrame(event:Event):void
 		{
-			MovieClip(parent).checkCollisionWithBall(this);
+			MovieClip(parent).checkCollisionWithBrick(this);
 		}
 		//Getters and Setters
 		public function set hits(hitsValue:Number):void
@@ -51,6 +53,14 @@
 		public function get score():Number
 		{
 			return _score;
+		}
+		public function set isBreakable(canBreak:Boolean):void
+		{
+			_isBreakable = canBreak;
+		}
+		public function get isBreakable():Boolean
+		{
+			return _isBreakable;
 		}
 	}
 }

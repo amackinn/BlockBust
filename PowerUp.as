@@ -1,8 +1,6 @@
 ﻿package 
 {
 	import flash.display.MovieClip;
-	import flash.events.KeyboardEvent;
-	import flash.ui.Keyboard;
 	import flash.events.Event;
 	import flash.geom.ColorTransform;
 	import flash.geom.Transform;
@@ -28,6 +26,7 @@
 			//Set the bullet type
 			this._powerUpType = powerUpType;
 			this._powerUpColor = powerUpCol;
+			this.letter.text = powerUpType.charAt(0);
 			
 			_score = SCOREVAL;
 
@@ -59,7 +58,7 @@
 		{
 			removeEventListener(Event.ENTER_FRAME, onEnterFrame);
 			removeEventListener(Event.REMOVED_FROM_STAGE, onRemovedFromStage);
-			trace("PowerUp removed");
+			//trace ("Powerup removed");
 		}
 		private function onEnterFrame(event:Event):void
 		{

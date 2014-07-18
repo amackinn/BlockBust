@@ -155,6 +155,14 @@
 		{
 			return _vx;
 		}
+		public function set vy(vyValue:Number):void
+		{
+			_vy = vyValue;
+		}
+		public function get vy():Number
+		{
+			return _vy;
+		}
 		public function set launchAngle(launchAngleValue:Number):void
 		{
 			_launchAngle = launchAngleValue;
