@@ -20,12 +20,12 @@
 		private function onAddedToStage(event:Event):void
 		{
 			//Add event listeners
-			addEventListener(Event.ENTER_FRAME, onEnterFrame);
+//			addEventListener(Event.ENTER_FRAME, onEnterFrame);
 			addEventListener(Event.REMOVED_FROM_STAGE, onRemovedFromStage);
 		}
 		private function onRemovedFromStage(event:Event):void
 		{
-			removeEventListener(Event.ENTER_FRAME, onEnterFrame);
+//			removeEventListener(Event.ENTER_FRAME, onEnterFrame);
 			removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 			removeEventListener(Event.REMOVED_FROM_STAGE, onRemovedFromStage);
 		}
@@ -33,10 +33,10 @@
 		//Each frame the brick objects send references of themselves to the
 		//Main_BBB (the "parent") to be checked for a collision
 		//with the ball(s)
-		private function onEnterFrame(event:Event):void
-		{
-			MovieClip(parent).checkCollisionWithBrick(this);
-		}
+//		private function onEnterFrame(event:Event):void
+//		{
+//			MovieClip(parent).checkCollisionWithBrick(this);
+//		}
 		//Getters and Setters
 		public function set hits(hitsValue:Number):void
 		{

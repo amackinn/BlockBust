@@ -16,13 +16,10 @@
 	import fl.controls.TextArea;
 	import flash.events.MouseEvent;
 	import flash.system.fscommand;
+	import fl.containers.ScrollPane;
 
 	public class Main_BBB extends MovieClip
 	{
-//		private const PLAYAREA_LEFT_LIMIT:uint = 14;
-//		private const PLAYAREA_RIGHT_LIMIT:uint = 450;
-//		private const PLAYAREA_TOP_LIMIT:uint = 16;
-//		private const PLAYAREA_BOT_LIMIT:uint = 415;
 		private const MAX_LIVES:int = 9;
 		private const TIMER_LENGTH:int = 6;
 		private const START_VELOCITY:int = 8;
@@ -33,8 +30,10 @@
 		private const INITIAL_VOLUME:uint = 5;
 		private const PLAYER_STARTX:Number = 134;
 		private const PLAYER_STARTY:Number = 388;
+		private const ACCELERATION:Number = 3;
 		private const INITIAL_LAUNCHANGLE:Number = 45;
 		private const MIN_LAUNCH_ANGLE:int = 15;
+		private const BOUNCE:Number = -1.0; 
 		
 		private const MAX_LEVEL:uint = 5;
 
@@ -52,6 +51,7 @@
 		private var _balls:Array;
 		private var _powerUps:Array;
 		private var _bullets:Array;
+		private var _bricks:Array;
 		private var _lives:int;
 		private var _launchTimer:Timer;
 		private var _startTimer:Timer;
@@ -62,6 +62,8 @@
 		private var _currLevel: uint;
 		private var _bricksRemaining:uint;
 		private var _msgScreen:MessageScreen;
+		private var _helpScreen:HelpScreen;
+		private var _helpScreenContent:HelpScreenContent;
 		private var _isPaused:Boolean;
 		private var _levelDisplayed:MovieClip;
 
@@ -95,6 +97,9 @@
 			//Initialize _bullets arrays
 			_bullets = new Array;
 			_bullets = [];
+			//Initialize _bricks arrays
+			_bricks = new Array;
+			_bricks = [];
 
 			//Initialize sound effects
 			_theme = new StartTheme;
@@ -127,18 +132,37 @@
 			_msgScreen.y = stage.height/2 - _msgScreen.height/2;
 			_msgScreen.visible = false;
 			addChild(_msgScreen);
+			
+			_helpScreen = new HelpScreen();
+			_helpScreenContent = new HelpScreenContent();
+			_helpScreen.scrollPane.source = _helpScreenContent;
+			_helpScreen.scrollPane.setSize(530,370);
+			_helpScreenContent.catchPU.setPowerUp(PUTypes.CATCH, PUTypes.COLOR_CATCH);
+			_helpScreenContent.slowPU.setPowerUp(PUTypes.SLOW, PUTypes.COLOR_SLOW);
+			_helpScreenContent.triplePU.setPowerUp(PUTypes.TRIPLE, PUTypes.COLOR_TRIPLE);
+			_helpScreenContent.growPU.setPowerUp(PUTypes.EXPAND, PUTypes.COLOR_EXPAND);
+			_helpScreenContent.reducePU.setPowerUp(PUTypes.SHRINK, PUTypes.COLOR_SHRINK);
+			_helpScreenContent.megaPU.setPowerUp(PUTypes.MEGABALL, PUTypes.COLOR_MEGABALL);
+			_helpScreenContent.laserPU.setPowerUp(PUTypes.LASER, PUTypes.COLOR_LASER);
+			_helpScreenContent.extraLifePU.setPowerUp(PUTypes.EXTRALIFE, PUTypes.COLOR_EXTRALIFE);
+			_helpScreenContent.warpPU.setPowerUp(PUTypes.WARP, PUTypes.COLOR_WARP);
+			_helpScreen.visible = false;
+			addChild(_helpScreen);
 
 			_msgScreen.newGameButton.addEventListener(MouseEvent.CLICK, onNewGameButtonClick);
 			_msgScreen.instructionsButton.addEventListener(MouseEvent.CLICK, onInstructionsButtonClick);
 			_msgScreen.quitButton.addEventListener(MouseEvent.CLICK, onQuitButtonClick);
 
-			stage.addEventListener(Event.ENTER_FRAME,onEnterFrame);
+			mainHelpButton.addEventListener(MouseEvent.CLICK, onHelpButtonClick);
+			mainCancelButton.addEventListener(MouseEvent.CLICK, onQuitButtonClick);
+			stage.addEventListener(Event.ENTER_FRAME,onEnterFrameListener);
 			stage.addEventListener("powerUpCreated",onPowerUpCreated);
 			stage.addEventListener("ballCreated",onBallCreated);
 			stage.addEventListener("bulletCreated",onBulletCreated);
 			stage.addEventListener("playerMoved",onPlayerMoved);
 			stage.addEventListener("playSFX",onPlaySFX);
-			stage.addEventListener(KeyboardEvent.KEY_DOWN,onKeyDown);
+			stage.addEventListener(KeyboardEvent.KEY_DOWN,onKeyDownListener);
+			stage.addEventListener(KeyboardEvent.KEY_UP,onKeyUpListener);
 			volumeSlider.addEventListener(SliderEvent.CHANGE, onVolumeChanged);
 
 //			_msgScreen.visible = true;
@@ -170,22 +194,33 @@
 			//_levelDisplayed.gotoAndStop(level);
 			gameLevel.text = "" + _currLevel;
 			
+			// Empty bricks array
+			_bricks.splice(0);
+			
 			// Count number of breakable blocks
 			_bricksRemaining = 0;
 			for (var i:int = 0; i < numChildren; i++)
 			{
 				var className:String = getQualifiedClassName(getChildAt(i));
+				// Check if object is a brick
 				if (className == "Brick" || className == "SilverBrick")
 				{
+					_bricks.push(getChildAt(i));
 					_bricksRemaining++;
+				}
+				else if (className == "GoldBrick")
+				{
+					_bricks.push(getChildAt(i));
 				}
 			}
 
 			// Play start theme
 			_soundChannel = _theme.play();
 			
-			// TODO: test code
-			var pu:PowerUp = new PowerUp(PLAYER_STARTX,PLAYER_STARTY-200,PUTypes.MEGABALL, PUTypes.COLOR_MEGABALL);
+			//var pu:PowerUp = new PowerUp(PUTypes.MEGABALL, PUTypes.COLOR_MEGABALL, PLAYER_STARTX,PLAYER_STARTY-200);
+			var pu:PowerUp = new PowerUp(PUTypes.LASER, PUTypes.COLOR_LASER);
+			pu.x=PLAYER_STARTX;
+			pu.y=PLAYER_STARTY-200;
 			this.addChild(pu);
 	
 		}
@@ -238,17 +273,13 @@
 			var leftLimit:Number = stageBackground.x;
 			//Stage boundaries
 			if (_player.x + playerHalfWidth > rightLimit)
-//			if (_player.x + playerHalfWidth > PLAYAREA_RIGHT_LIMIT)
 			{
 				_player.vx = 0;
 				_player.x=rightLimit - playerHalfWidth;
-//				_player.x=PLAYAREA_RIGHT_LIMIT - playerHalfWidth;
 			}
-//			else if (_player.x - playerHalfWidth < PLAYAREA_LEFT_LIMIT)
 			else if (_player.x - playerHalfWidth < leftLimit)
 			{
 				_player.vx = 0;
-//				_player.x = PLAYAREA_LEFT_LIMIT + playerHalfWidth;
 				_player.x = leftLimit + playerHalfWidth;
 			}
 			for (var j:int = 0; j < _balls.length; j++)
@@ -260,14 +291,31 @@
 			}
 		}
 		
-		private function onEnterFrame(event:Event):void
+		private function onEnterFrameListener(event:Event):void
 		{
 			var i:int;
 			var j:int;
 			var k:int;
 			
+			// TODO: Move var set to onStageAdded
+			var botLimit:Number = stageBackground.y + stageBackground.height;
+			var topLimit:Number = stageBackground.y;
+			var rightLimit:Number = stageBackground.x + stageBackground.width;
+			var leftLimit:Number = stageBackground.x;
+			
+			// Move bullets
 			for (j = 0; j < _bullets.length; j++)
 			{
+				//Move the bullet
+				_bullets[j].y += _bullets[j].vy;
+				
+				if (_bullets[j].y - _bullets[j].height / 2 < topLimit)
+				{
+					_bullets[j].isLost = true;
+				}
+				
+				// Checked separately from test above for going offscreen since
+				// bullet can also be lost when hitting brick
 				if (_bullets[j].isLost)
 				{
 					removeChild(_bullets[j]);
@@ -276,8 +324,54 @@
 				}
 			}
 			
+			// Move balls
+			var ballHalfWidth:uint;
+			var ballHalfHeight:uint;
+			if (_balls.length > 0)
+			{
+				ballHalfWidth = _balls[0].width / 2;
+				ballHalfHeight = _balls[0].height / 2;
+			}
 			for (j = 0; j < _balls.length; j++)
 			{
+				
+				if (Math.abs(_balls[j].vx) < 0.1)
+				{
+					_balls[j].vx = 0;
+				}
+				if (Math.abs(_balls[j].vy) < 0.1)
+				{
+					_balls[j].vy = 0;
+				}
+				
+				//Move the ball
+				_balls[j].x += _balls[j].vx;
+				_balls[j].y += _balls[j].vy;
+				
+				//Stage boundaries
+				if (_balls[j].x + ballHalfWidth > rightLimit)
+				{
+					_balls[j].vx *= BOUNCE;
+					_balls[j].x=rightLimit - ballHalfWidth;
+				}
+				else if (_balls[j].x - ballHalfWidth < leftLimit)
+				{
+					_balls[j].vx *= BOUNCE;
+					_balls[j].x = leftLimit + ballHalfWidth;
+				}
+				if (_balls[j].y - ballHalfHeight < topLimit)
+				{
+					_balls[j].vy *= BOUNCE;
+					_balls[j].y = topLimit + ballHalfHeight;
+				}
+				else if (_balls[j].y + ballHalfHeight > botLimit)
+				{
+					_balls[j].vy *= BOUNCE;
+					_balls[j].y = botLimit - ballHalfHeight;
+					
+//					_balls[j].isLost = true;
+				}				
+				
 				if (_balls[j].isLost)
 				{
 					removeChild(_balls[j]);
@@ -288,6 +382,14 @@
 					{
 						_lives--;
 						removeChild(_player);
+						
+						// Remove any powerups
+						for (k = 0; k < _powerUps.length; k++)
+						{
+							removeChild(_powerUps[k]);
+						}
+						_powerUps.splice(0);
+							
 						if (_lives == 0)
 						{
 							_msgScreen.output_txt.text = "You lose.";
@@ -299,13 +401,6 @@
 							_soundChannel = _lifeLost.play();
 							this["extraLife" + _lives].visible = false;
 							
-							// Remove any powerups
-							for (k = 0; k < _powerUps.length; k++)
-							{
-								removeChild(_powerUps[k]);
-							}
-							_powerUps.splice(0);
-							
 							_startTimer.start();
 							//startRound();
 						}
@@ -313,7 +408,7 @@
 					continue;
 				}
 				// Test for collision between ball and player
-				// Check for null _player reference since onEnterFrame can be called
+				// Check for null _player reference since onEnterFrameListener can be called
 				// while no _player exists, before it is created in onStartRound
 				if (_player != null &&
 //					Collision.ballAndPlayer(_balls[j],_player) && 
@@ -349,7 +444,9 @@
 			//Check for powerup fall offscreen, collision with player
 			for (i = 0; i < _powerUps.length; i++)
 			{
-				var botLimit:Number = stageBackground.y + stageBackground.height;
+				// Move powerup
+				_powerUps[i].y += _powerUps[i].vy;
+				
 //				if (_powerUps[i].y > PLAYAREA_BOT_LIMIT)
 				if (_powerUps[i].y > botLimit)
 				{
@@ -428,10 +525,60 @@
 					i--;
 				}
 			}
+			
+			// Move player paddle
+			if (_player != null)
+			{
+				//Apply Acceleration
+				_player.vx +=  _player.ax;
+				
+				if (Math.abs(_player.vx) < 0.1)
+				{
+					_player.vx = 0;
+				}
+				else
+				{
+					//Move the player
+					_player.x +=  _player.vx;
+		
+					var playerHalfWidth:uint = _player.width / 2;
+					
+					//Stage boundaries
+					if (_player.x + playerHalfWidth > rightLimit)
+					{
+						_player.vx = 0;
+						_player.x=rightLimit - playerHalfWidth;
+					}
+					else if (_player.x - playerHalfWidth < leftLimit)
+					{
+						_player.vx = 0;
+						_player.x = leftLimit + playerHalfWidth;
+					}
+					
+					// Move balls on paddle along with paddle movement
+					for (j = 0; j < _balls.length; j++)
+					{
+						if (_balls[j].isOnPaddle)
+						{
+							_balls[j].x = _player.x + _balls[j].paddleXOffset;
+						}
+					}
+				}
+			}
+			
+			// Check for brick collisions
+			for (j = 0; j < _bricks.length; j++)
+			{
+				if(checkCollisionWithBrick(_bricks[j]))
+				{
+					_bricks.splice(j,1);
+					j--;
+				}
+			}
 		}
 		
 		// Test for collision between brick and bullets, balls
-		public function checkCollisionWithBrick(brick:Brick)
+		public function checkCollisionWithBrick(brick:Brick): Boolean
 		{
 			var j:int;
 			for (j = 0; j < _bullets.length; j++)
@@ -443,7 +590,10 @@
 						_bullets[j].isLost = true;
 						
 						brick.hits--;
-						breakBrick(brick);
+						
+						// Check if brick destroyed. If so, short-circuit return
+						if (breakBrick(brick))
+							return true;
 					}
 				}
 			}
@@ -467,13 +617,17 @@
 							Collision.bounce(_balls[j],brick);
 							brick.hits--;
 						}
-						breakBrick(brick);
+						// Check if brick destroyed. If so, short-circuit return
+						if (breakBrick(brick))
+							return true;
 					}
 				}
 			}
+			// Return false if brick not destroyed
+			return false;
 		}
 		
-		private function breakBrick(brick:Brick):void
+		private function breakBrick(brick:Brick): Boolean
 		{
 			if (brick.hits <= 0)
 			{
@@ -493,8 +647,14 @@
 							break;
 						}
 					}
-					this.addChild(new PowerUp(brick.x,brick.y,POWERUP_LIST[pUChosen],
-											  POWERUP_COLOR[pUChosen]));
+					var pu:PowerUp = new PowerUp(POWERUP_LIST[pUChosen],
+											  POWERUP_COLOR[pUChosen]);
+					pu.x=brick.x;
+					pu.y=brick.y;
+					this.addChild(pu);
+//					this.addChild(new PowerUp(POWERUP_LIST[pUChosen],
+//											  POWERUP_COLOR[pUChosen], 
+//											  brick.x,brick.y));
 				}
 
 				// Update score
@@ -516,12 +676,16 @@
 						winLevel();
 					}
 				}
+				// Broke a brick
+				return true;
 			}
-			else
+			//else
 			{
 				// Play sound
 				_soundChannel = _bounceHi.play();
 				brick.play();
+				// Didn't break a brick
+				return false;
 			}
 		}
 		
@@ -634,7 +798,7 @@
 			SoundMixer.soundTransform = new SoundTransform(_soundMasterVolume); // Sets the volume to 50%
 		}
 
-		private function onKeyDown(event:KeyboardEvent):void
+		private function onKeyDownListener(event:KeyboardEvent):void
 		{
 			if (event.keyCode == Keyboard.NUMBER_0) // '0': mute volume
 			{
@@ -681,17 +845,56 @@
 				}
 				
 			}
+			else if (event.keyCode == Keyboard.LEFT)
+			{
+				if (_player.vx > 0)
+				{
+					_player.ax = 0;
+					_player.vx = 0;
+				}
+				_player.ax = - ACCELERATION;
+			}
+			else if (event.keyCode == Keyboard.RIGHT)
+			{
+				if (_player.vx < 0)
+				{
+					_player.ax = 0;
+					_player.vx = 0;
+				}
+				_player.ax = ACCELERATION;
+			}
+		}
+		private function onKeyUpListener(event:KeyboardEvent):void
+		{
+			if (event.keyCode == Keyboard.LEFT)
+			{
+				//if (_player.vx < 0)
+				{
+					_player.ax = 0;
+					_player.vx = 0;
+				}
+			}
+			if (event.keyCode == Keyboard.RIGHT)
+			{
+				//if (_player.vx > 0)
+				{
+					_player.ax = 0;
+					_player.vx = 0;
+				}
+			}
 		}
 
 		private function applyPause():void
 		{
 			if (_isPaused)
 			{
-				stage.frameRate = 0;
+				//stage.frameRate = 0;
+				stage.removeEventListener(Event.ENTER_FRAME,onEnterFrameListener);
 			}
 			else
 			{
-				stage.frameRate = 30;
+				//stage.frameRate = 30;
+				stage.addEventListener(Event.ENTER_FRAME,onEnterFrameListener);
 			}			
 		}
 
@@ -712,14 +915,15 @@
 		
 		private function displayMessageScreen():void
 		{
-			removeEventListener(Event.ENTER_FRAME,onEnterFrame);
+			removeEventListener(Event.ENTER_FRAME,onEnterFrameListener);
 			removeEventListener(TimerEvent.TIMER,onUpdateTime);
 			removeEventListener(TimerEvent.TIMER,onStartRound);
 			removeEventListener("powerUpCreated",onPowerUpCreated);
 			removeEventListener("ballCreated",onBallCreated);
 			removeEventListener(TimerEvent.TIMER,onUpdateTime);
-			removeEventListener(KeyboardEvent.KEY_DOWN,onKeyDown);
+			removeEventListener(KeyboardEvent.KEY_DOWN,onKeyDownListener);
 			
+			setChildIndex(_msgScreen, numChildren - 1);
 			_msgScreen.visible = true;
 		}
 		
@@ -729,14 +933,37 @@
 			_msgScreen.visible = false;
 		}
 		
-		private function onInstructionsButtonClick(event:MouseEvent):void
-		{
-			
-		}
-		
 		private function onQuitButtonClick(event:MouseEvent):void
 		{
 			fscommand("quit");
+		}
+		
+		private function onInstructionsButtonClick(event:MouseEvent):void
+		{
+//			addChild(_helpScreen);
+			// Move help screen to front of all other objects
+			setChildIndex(_helpScreen, numChildren - 1);
+			_helpScreen.visible = true;
+			_helpScreen.cancelButton.addEventListener(MouseEvent.CLICK, onHelpCancelButtonClick);
+		}
+		
+		private function onHelpButtonClick(event:MouseEvent):void
+		{
+			_isPaused = true;
+			applyPause();
+
+//			addChild(_helpScreen);
+			// Move help screen to front of all other objects
+			setChildIndex(_helpScreen, numChildren - 1);
+			_helpScreen.visible = true;
+			_helpScreen.cancelButton.addEventListener(MouseEvent.CLICK, onHelpCancelButtonClick);
+		}
+		
+		private function onHelpCancelButtonClick(event:MouseEvent):void
+		{
+			_helpScreen.cancelButton.removeEventListener(MouseEvent.CLICK, onHelpCancelButtonClick);
+			_helpScreen.visible = false;
+//			removeChild(_helpScreen);
 		}
 	}
 }

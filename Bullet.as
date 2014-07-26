@@ -10,7 +10,6 @@
 
 		private var _isLost:Boolean;
 		private var _vy:Number;
-		private var _bulletHalfHeight:uint;
 		
 		public function Bullet(startX:Number, startY:Number) {
 			this.x = startX;
@@ -21,10 +20,7 @@
 		}
 		private function onAddedToStage(event:Event):void
 		{
-			_bulletHalfHeight = this.height / 2;
-
 			//Add stage event listeners
-			addEventListener(Event.ENTER_FRAME, onEnterFrame);
 			addEventListener(Event.REMOVED_FROM_STAGE, onRemovedFromStage);
 			//Tell the game the a new powerup has been created
 			dispatchEvent(new Event("bulletCreated", true));
@@ -37,23 +33,14 @@
 		}
 		private function onRemovedFromStage(event:Event):void
 		{
-			removeEventListener(Event.ENTER_FRAME, onEnterFrame);
 			removeEventListener(Event.REMOVED_FROM_STAGE, onRemovedFromStage);
 //			trace ("Bullet removed");
 		}
 		
-		private function onEnterFrame(event:Event):void
+		public function get vy():Number
 		{
-			//Move the bullet
-			y += _vy;
-			
-			if (y - _bulletHalfHeight < PLAYAREA_TOP_LIMIT)
-			{
-				_isLost = true;
-			}
-
+			return _vy;
 		}
-		
 		public function get isLost():Boolean
 		{
 			return _isLost;

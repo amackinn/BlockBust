@@ -11,7 +11,7 @@
 	{
 		//Constants
 		private const SPEED_LIMIT:int = 20;
-		private const ACCELERATION:Number = 3;
+//		private const ACCELERATION:Number = 3;
 		private const PLAYAREA_LEFT_LIMIT:uint = 14;
 		private const PLAYAREA_RIGHT_LIMIT:uint = 450;
 		private const EXPAND_RATIO:Number = 1.50;
@@ -21,7 +21,6 @@
 
 		//Variables:
 		private var _vx:Number;
-		private var _vy:Number;
 		private var _accelerationX:Number;
 		private var _collisionArea:MovieClip;
 		private var _launchAngle:int;
@@ -48,120 +47,90 @@
 			_powerUp = "";
 
 			//Add stage event listeners
-			stage.addEventListener(KeyboardEvent.KEY_DOWN,onKeyDown);
-			stage.addEventListener(KeyboardEvent.KEY_UP,onKeyUp);
-			addEventListener(Event.ENTER_FRAME, onEnterFrame);
+//			stage.addEventListener(KeyboardEvent.KEY_DOWN,onKeyDown);
+//			stage.addEventListener(KeyboardEvent.KEY_UP,onKeyUp);
 			addEventListener(Event.REMOVED_FROM_STAGE, onRemovedFromStage);
 			removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 		}
 		private function onRemovedFromStage(event:Event):void
 		{
-			removeEventListener(Event.ENTER_FRAME, onEnterFrame);
 			removeEventListener(Event.REMOVED_FROM_STAGE, onRemovedFromStage);
-			removeEventListener(KeyboardEvent.KEY_DOWN,onKeyDown);
-			removeEventListener(KeyboardEvent.KEY_UP,onKeyUp);
-			trace("player removed");
+//			removeEventListener(KeyboardEvent.KEY_DOWN,onKeyDown);
+//			removeEventListener(KeyboardEvent.KEY_UP,onKeyUp);
+			//trace("player removed");
 		}
-		private function onKeyDown(event:KeyboardEvent):void
-		{
-			if (event.keyCode == Keyboard.LEFT)
-			{
-				if (_vx > 0)
-				{
-					_accelerationX = 0;
-					_vx = 0;
-				}
-				_accelerationX =  -  ACCELERATION;
-			}
-			if (event.keyCode == Keyboard.RIGHT)
-			{
-				if (_accelerationX < 0)
-				{
-					_accelerationX = 0;
-					_vx = 0;
-				}
-				_accelerationX = ACCELERATION;
-			}
-		}
-		private function onKeyUp(event:KeyboardEvent):void
-		{
-			if (event.keyCode == Keyboard.LEFT)
-			{
-				if (_vx < 0)
-				{
-					_accelerationX = 0;
-					_vx = 0;
-				}
-			}
-			if (event.keyCode == Keyboard.RIGHT)
-			{
-				if (_vx > 0)
-				{
-					_accelerationX = 0;
-					_vx = 0;
-				}
-			}
-			if (event.keyCode == Keyboard.SPACE)
-			{
-				trace("Player Position: X=" + x + " Y=" + y);
-			}
-		}
-		private function onEnterFrame(event:Event):void
-		{
-			//Apply Acceleration
-			_vx +=  _accelerationX;
-			if (_vx > SPEED_LIMIT)
-			{
-				_vx = SPEED_LIMIT;
-			}
-			if (_vx <  -  SPEED_LIMIT)
-			{
-				_vx =  -  SPEED_LIMIT;
-			}
-
-			if (Math.abs(_vx) < 0.1)
-			{
-				_vx = 0;
-			}
-
-			//Move the player
-			x +=  _vx;
-
-			if (_accelerationX != 0)
-			{
-				dispatchEvent(new Event("playerMoved", true));
-			}
-
-			////Stage boundaries
-			//var playerHalfWidth:uint = this.width / 2;
-			//if (x + playerHalfWidth > PLAYAREA_RIGHT_LIMIT)
-			//{
-			//_vx = 0;
-			//x=PLAYAREA_RIGHT_LIMIT - playerHalfWidth;
-			//}
-			//else if (x - playerHalfWidth < PLAYAREA_LEFT_LIMIT)
-			//{
-			//_vx = 0;
-			//x = PLAYAREA_LEFT_LIMIT + playerHalfWidth;
-			//}
-		}
+//		private function onKeyDown(event:KeyboardEvent):void
+//		{
+//			if (event.keyCode == Keyboard.LEFT)
+//			{
+//				if (_vx > 0)
+//				{
+//					_accelerationX = 0;
+//					_vx = 0;
+//				}
+//				_accelerationX =  -  ACCELERATION;
+//			}
+//			if (event.keyCode == Keyboard.RIGHT)
+//			{
+//				if (_accelerationX < 0)
+//				{
+//					_accelerationX = 0;
+//					_vx = 0;
+//				}
+//				_accelerationX = ACCELERATION;
+//			}
+//		}
+//		private function onKeyUp(event:KeyboardEvent):void
+//		{
+//			if (event.keyCode == Keyboard.LEFT)
+//			{
+//				if (_vx < 0)
+//				{
+//					_accelerationX = 0;
+//					_vx = 0;
+//				}
+//			}
+//			if (event.keyCode == Keyboard.RIGHT)
+//			{
+//				if (_vx > 0)
+//				{
+//					_accelerationX = 0;
+//					_vx = 0;
+//				}
+//			}
+////			if (event.keyCode == Keyboard.SPACE)
+////			{
+////				trace("Player Position: X=" + x + " Y=" + y);
+////			}
+//		}
 
 		//Getters and Setters
 		public function set vx(vxValue:Number):void
 		{
-			_vx = vxValue;
+			if (vxValue > SPEED_LIMIT)
+			{
+				_vx = SPEED_LIMIT;
+			}
+			else if (vxValue <  -  SPEED_LIMIT)
+			{
+				_vx =  -  SPEED_LIMIT;
+			}
+			else
+			{
+				_vx = vxValue;
+			}
 		}
 		public function get vx():Number
 		{
 			return _vx;
 		}
-		public function set vy(vyValue:Number):void
+		public function set ax(accelVal:Number):void
 		{
-			_vy = vyValue;
+			_accelerationX = accelVal;
 		}
-		public function get vy():Number
+		public function get ax():Number
 		{
-			return _vy;
+			return _accelerationX;
 		}
 		public function set launchAngle(launchAngleValue:Number):void
 		{

@@ -7,7 +7,6 @@
 	{
 		//Constants
 		private const ACCELERATION:Number = 1; 
-		private const BOUNCE:Number = -1.0; 
 		private const PLAYAREA_LEFT_LIMIT:uint = 14;
 		private const PLAYAREA_RIGHT_LIMIT:uint = 450;
 		private const PLAYAREA_TOP_LIMIT:uint = 16;
@@ -28,8 +27,8 @@
 		private var _launch:Boolean;
 		private var _isLost:Boolean;
 		private var _paddleXOffset:Number;
-		private var _bounceX:Number;
-		private var _bounceY:Number;
+//		private var _bounceX:Number;
+//		private var _bounceY:Number;
 		private var _powerup:uint;
 
 		public function Ball(startX:Number, startY:Number, startSpeed:Number)
@@ -45,8 +44,6 @@
 			_launch = false;
 			_isLost = false;
 			_paddleXOffset = 0;
-			_bounceX = 0;
-			_bounceY = 0;
 			_powerup=NORMAL;
 			addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 		}
@@ -55,62 +52,16 @@
 			gotoAndStop(_powerup);
 
 			//Add stage event listeners
-			addEventListener(Event.ENTER_FRAME, onEnterFrame);
 			addEventListener(Event.REMOVED_FROM_STAGE, onRemovedFromStage);
-//			stage.addEventListener(KeyboardEvent.KEY_DOWN,onKeyDown);
 			removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 			dispatchEvent(new Event("ballCreated", true));
 			trace("ball added");
 		}
 		private function onRemovedFromStage(event:Event):void
 		{
-			removeEventListener(Event.ENTER_FRAME, onEnterFrame);
 			removeEventListener(Event.REMOVED_FROM_STAGE, onRemovedFromStage);
 			addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 			trace("ball removed");
-		}
-		private function onEnterFrame(event:Event):void
-		{
-			//Initialize local variables
-			var ballHalfWidth:uint = this.width / 2;
-			var ballHalfHeight:uint = this.height / 2;
-
-			if (Math.abs(_vx) < 0.1)
-			{
-				_vx = 0;
-			}
-			if (Math.abs(_vy) < 0.1)
-			{
-				_vy = 0;
-			}
-			
-			//Move the ball
-			x += _vx;
-			y += _vy;
-			
-			//Stage boundaries
-			if (x + ballHalfWidth > PLAYAREA_RIGHT_LIMIT)
-			{
-				_vx *= BOUNCE;
-				x=PLAYAREA_RIGHT_LIMIT - ballHalfWidth;
-			}
-			else if (x - ballHalfWidth < PLAYAREA_LEFT_LIMIT)
-			{
-				_vx *= BOUNCE;
-				x = PLAYAREA_LEFT_LIMIT + ballHalfWidth;
-			}
-			if (y - ballHalfHeight < PLAYAREA_TOP_LIMIT)
-			{
-				_vy *= BOUNCE;
-				y = PLAYAREA_TOP_LIMIT + ballHalfHeight;
-			}
-			else if (y + ballHalfHeight > PLAYAREA_BOT_LIMIT)
-			{
-				_vy *= BOUNCE;
-				y = PLAYAREA_BOT_LIMIT - ballHalfHeight;
-				
-//				_isLost = true;
-			}
 		}
 
 		//Getters and Setters
@@ -168,22 +119,6 @@
 		public function get vy():Number
 		{
 			return _vy;
-		}
-		public function get bounceX():Number
-		{
-			return _bounceX;
-		}
-		public function set bounceX(bounceXValue:Number):void
-		{
-			_bounceX = bounceXValue;
-		}
-		public function get bounceY():Number
-		{
-			return _bounceY;
-		}
-		public function set bounceY(bounceYValue:Number):void
-		{
-			_bounceY = bounceYValue;
 		}
 		public function get powerup():String
 		{

@@ -6,7 +6,7 @@
 		public static const SLOW:String  = "Slow";
 		public static const TRIPLE:String = "Triple";
 		public static const EXPAND:String = "Grow";
-		public static const SHRINK:String = "Shrink";
+		public static const SHRINK:String = "Reduce";
 		public static const MEGABALL:String = "Megaball";
 		public static const LASER:String = "Laser";
 		public static const EXTRALIFE:String = "Extralife";
@@ -29,7 +29,7 @@
 		public static const COLOR_SHRINK:uint = 0x333333;
 		public static const COLOR_MEGABALL:uint = 0xFF00FF;
 		public static const COLOR_LASER:uint = 0xFF0000;
-		public static const COLOR_EXTRALIFE:uint = 0x600000;
+		public static const COLOR_EXTRALIFE:uint = 0x0000FF;
 		public static const COLOR_WARP:uint = 0xFFFF00;
 	}
 }
