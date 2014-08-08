@@ -217,11 +217,12 @@
 			// Play start theme
 			_soundChannel = _theme.play();
 			
+			// Starting powerup, for debugging
 			//var pu:PowerUp = new PowerUp(PUTypes.MEGABALL, PUTypes.COLOR_MEGABALL, PLAYER_STARTX,PLAYER_STARTY-200);
-			var pu:PowerUp = new PowerUp(PUTypes.LASER, PUTypes.COLOR_LASER);
-			pu.x=PLAYER_STARTX;
-			pu.y=PLAYER_STARTY-200;
-			this.addChild(pu);
+//			var pu:PowerUp = new PowerUp(PUTypes.LASER, PUTypes.COLOR_LASER);
+//			pu.x=PLAYER_STARTX;
+//			pu.y=PLAYER_STARTY-200;
+//			this.addChild(pu);
 	
 		}
 		
@@ -366,10 +367,11 @@
 				}
 				else if (_balls[j].y + ballHalfHeight > botLimit)
 				{
-					_balls[j].vy *= BOUNCE;
-					_balls[j].y = botLimit - ballHalfHeight;
+					// Prevent ball from falling offscreen, for debugging
+//					_balls[j].vy *= BOUNCE;
+//					_balls[j].y = botLimit - ballHalfHeight;
 					
-//					_balls[j].isLost = true;
+					_balls[j].isLost = true;
 				}				
 				
 				if (_balls[j].isLost)

@@ -1,0 +1,11 @@
+# Change balls, powerups, bricks to use object pools (per http://www.gotoandlearn.com/play.php?id=160)
+
+# Debug ball speed increase
+
+# Change game screen to tile based brick display instead of preconstructed games screens on timeline
+
+# Fix new game listeners
+
+# Make powerups exclusive
+
+# Debug end of game NewGame button
